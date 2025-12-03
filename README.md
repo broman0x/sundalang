@@ -47,4 +47,10 @@ Pastikan sudah terinstall **Go 1.22+**.
 
 ### Rekomendasi (paling gampang)
 ```bash
-go install github.com/broman0x/sundalang@latest
+git clone https://github.com/broman0x/sundalang.git
+cd sundalang
+```
+### Cara menjalankannya
+```bash
+.\run-sunda examples\hello.sl
+.\run-sunda file.sl
