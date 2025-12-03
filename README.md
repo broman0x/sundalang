@@ -12,13 +12,13 @@
   <a href="https://sundalang.emandev.xyz">
     <img src="https://img.shields.io/badge/web-official-blue" alt="web" />
   </a>
-  <a href="https://opensource.org/licenses/MIT">
+  <a href="https://raw.githubusercontent.com/broman0x/sundalang/refs/heads/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" />
   </a>
-  <a href="https://github.com/br0/sundalang">
+  <a href="https://github.com/broman0x/sundalang">
     <img src="https://img.shields.io/github/stars/broman0x/sundalang?style=social" alt="GitHub stars" />
   </a>
-  <a href="https://github.com/br0/sundalang/releases">
+  <a href="https://github.com/broman0x/sundalang/releases">
     <img src="https://img.shields.io/github/v/release/broman0x/sundalang?label=release" alt="Latest Release" />
   </a>
 </p>
@@ -41,6 +41,41 @@
 - **Lengkap** → Variabel, if-else, loop, fungsi, operasi matematika  
 - **Open Source** → Bebas dikembangkan bareng-bareng
 
+## 📚 Kamus Syntax
+ ```
+ tanda > var / let
+ ```
+ ```
+ cetakkeun > print
+ ```
+ ```
+ tanyakeun > input
+ ```
+ ```
+ lamun > if
+ ```
+ ```
+ lamunteu > else
+ ```
+ ```
+ kedap > while
+ ```
+ ```
+ fungsi > function
+ ```
+ ```
+ balik > return
+ ```
+ ```
+ bener > true
+ ```
+ ```   
+ salah > false
+ ```
+ ```   
+ % > modulo
+ ```
+
 ## 📦 Cara Install
 
 Pastikan sudah terinstall **Go 1.22+**.
@@ -54,3 +89,17 @@ cd sundalang
 ```bash
 .\run-sunda examples\hello.sl
 .\run-sunda file.sl
+```
+
+### 🤝 Kontribusi
+```
+Kami sangat senang kalau baraya rék nyumbangkeun!
+1.Fork repo ini
+2.Buat branch baru (git checkout -b fitur-anyar)
+3.Commit (git commit -m 'Nambihan fitur mantap')
+4.Push & buat Pull Request
+```
+Ayo bareng-bareng ngajadikeun SundaLang leuwih gagah!
+
+### 📄 Lisensi
+Dirilis di bawah MIT License. Lihat file LICENSE untuk detail.
