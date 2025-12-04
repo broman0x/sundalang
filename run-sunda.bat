@@ -1,12 +1,7 @@
 @echo off
 
-rem Cek apakah user memberikan nama file
-if "%1"=="" (
-    echo [ERROR] Masukkan nama file!
-    echo Cara pakai: run-sunda examples\hello.sl
-    exit /b
-)
+rem Menjalankan compiler Go
+rem %* artinya meneruskan semua argumen (nama file atau flag -v) ke program Go
+rem Jika kosong, program Go akan otomatis masuk mode REPL.
 
-rem Menjalankan compiler Go langsung
-go run cmd/sundalang.go %1
-echo.
+go run cmd/sundalang.go %*
