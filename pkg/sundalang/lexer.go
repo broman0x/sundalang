@@ -32,13 +32,17 @@ func (l *Lexer) peekChar() byte {
 
 func (l *Lexer) NextToken() Token {
 	var tok Token
-	l.skipWhitespace()
-
-	if l.ch == '#' {
-		for l.ch != '\n' && l.ch != 0 {
-			l.readChar()
-		}
+	for {
 		l.skipWhitespace()
+
+		if l.ch == '#' {
+			for l.ch != '\n' && l.ch != 0 {
+				l.readChar()
+			}
+			continue
+		}
+		
+		break
 	}
 
 	switch l.ch {
