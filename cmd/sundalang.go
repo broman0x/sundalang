@@ -6,7 +6,14 @@ import (
 	"sundalang/pkg/sundalang" 
 )
 
-func run(code string) {
+func runFile(filename string) {
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Printf("Gagal maca file: %s\n", err)
+		return
+	}
+
+	code := string(content)
 	l := sundalang.NewLexer(code)
 	p := sundalang.NewParser(l)
 	program := p.ParseProgram()
@@ -28,29 +35,16 @@ func run(code string) {
 
 func main() {
 	if len(os.Args) > 1 {
-		filename := os.Args[1]
-		fmt.Printf("Macakeun file: %s...\n", filename)
-		
-		content, err := os.ReadFile(filename)
-		if err != nil {
-			fmt.Printf("Gagal maca file: %s\n", err)
+		arg := os.Args[1]
+		if arg == "-v" || arg == "--version" {
+			fmt.Println("SundaLang v1.0.1")
+			fmt.Println("Basa Pemrograman Sunda Pandeglang")
+			fmt.Println("Immersive Environment Build")
 			return
 		}
 
-		run(string(content))
+		runFile(arg)
 		return
 	}
-
-	const sundaCode = `
-	cetakkeun("=== MODE DEMO SUNDALANG ===")
-	cetakkeun("Tip: Jalankeun 'go run cmd/main.go file.sl' pikeun muka file sorangan.")
-	
-	tanda x = 10
-	tanda y = 20
-	
-	lamun x < y {
-		cetakkeun("X leuwih leutik ti Y")
-	}
-	`
-	run(sundaCode)
+	sundalang.StartREPL(os.Stdin, os.Stdout)
 }

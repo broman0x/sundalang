@@ -1,14 +1,17 @@
-tanda angka = tanyakeun("Masukan Angka Ganjil/Genap: ")
+# Cek Ganjil Genap make Operator Modulo (%)
+
+cetakkeun("=== Cek Ganjil Genap ===")
+tanda angka = tanyakeun("Masukan Angka: ")
+
 cetakkeun("Angka nu dicek: ")
 cetakkeun(angka)
 
-tanda sisa = angka
-kedap sisa > 1 {
-tanda sisa = sisa - 2
-}
+# Make operator % (sisa bagi) nu leuwih gampang
+# Di versi heubeul kudu make looping, ayeuna mah langsung weh
+tanda sisa = angka % 2
 
 lamun sisa == 0 {
-    cetakkeun("ini teh genap")
+    cetakkeun("Hasilna: Ieu teh angka GENAP.")
 } lamunteu {
-    cetakkeun("ini teh ganjil")
+    cetakkeun("Hasilna: Ieu teh angka GANJIL.")
 }

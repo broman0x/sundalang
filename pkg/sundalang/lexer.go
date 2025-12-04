@@ -50,8 +50,10 @@ func (l *Lexer) NextToken() Token {
 		} else {
 			tok = newToken(TOKEN_ASSIGN, l.ch)
 		}
-	case '+': tok = newToken(TOKEN_PLUS, l.ch)
-	case '-': tok = newToken(TOKEN_MINUS, l.ch)
+	case '+':
+		tok = newToken(TOKEN_PLUS, l.ch)
+	case '-':
+		tok = newToken(TOKEN_MINUS, l.ch)
 	case '!':
 		if l.peekChar() == '=' {
 			ch := l.ch
@@ -60,17 +62,34 @@ func (l *Lexer) NextToken() Token {
 		} else {
 			tok = newToken(TOKEN_BANG, l.ch)
 		}
-	case '*': tok = newToken(TOKEN_ASTERISK, l.ch)
-	case '/': tok = newToken(TOKEN_SLASH, l.ch)
-	case '%': tok = newToken(TOKEN_MODULO, l.ch) 
-	case '<': tok = newToken(TOKEN_LT, l.ch)
-	case '>': tok = newToken(TOKEN_GT, l.ch)
-	case ';': tok = newToken(TOKEN_SEMICOLON, l.ch)
-	case '(': tok = newToken(TOKEN_LPAREN, l.ch)
-	case ')': tok = newToken(TOKEN_RPAREN, l.ch)
-	case ',': tok = newToken(TOKEN_COMMA, l.ch)
-	case '{': tok = newToken(TOKEN_LBRACE, l.ch)
-	case '}': tok = newToken(TOKEN_RBRACE, l.ch)
+	case '*':
+		tok = newToken(TOKEN_ASTERISK, l.ch)
+	case '/':
+		tok = newToken(TOKEN_SLASH, l.ch)
+	case '%':
+		tok = newToken(TOKEN_MODULO, l.ch)
+	case '<':
+		tok = newToken(TOKEN_LT, l.ch)
+	case '>':
+		tok = newToken(TOKEN_GT, l.ch)
+	case ';':
+		tok = newToken(TOKEN_SEMICOLON, l.ch)
+	case ':':
+		tok = newToken(TOKEN_COLON, l.ch)
+	case '(':
+		tok = newToken(TOKEN_LPAREN, l.ch)
+	case ')':
+		tok = newToken(TOKEN_RPAREN, l.ch)
+	case ',':
+		tok = newToken(TOKEN_COMMA, l.ch)
+	case '{':
+		tok = newToken(TOKEN_LBRACE, l.ch)
+	case '}':
+		tok = newToken(TOKEN_RBRACE, l.ch)
+	case '[':
+		tok = newToken(TOKEN_LBRACKET, l.ch)
+	case ']':
+		tok = newToken(TOKEN_RBRACKET, l.ch)
 	case '"':
 		tok.Type = TOKEN_STRING
 		tok.Literal = l.readString()

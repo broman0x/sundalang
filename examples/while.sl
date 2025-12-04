@@ -1,6 +1,14 @@
-tanda i = 1
+# Conto Loop (Kedap) - Countdown Peluncuran Roket
 
-kedap i < 5 {
-    cetakkeun(i)
-    tanda i = i + 1
+tanda hitungan = 5
+
+cetakkeun("Siap-siap ngitung mundur...")
+
+# 'kedap' teh 'while' dina basa Sunda
+kedap hitungan > 0 {
+    cetakkeun(hitungan)
+    tanda hitungan = hitungan - 1
 }
+
+cetakkeun("Meluncur! 🚀")
+cetakkeun("SundaLang to the Moon!")

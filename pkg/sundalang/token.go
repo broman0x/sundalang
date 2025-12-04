@@ -9,7 +9,6 @@ const (
 	TOKEN_INT     TokenType = "INT"
 	TOKEN_STRING  TokenType = "STRING"
 
-	// Operators
 	TOKEN_ASSIGN   TokenType = "="
 	TOKEN_PLUS     TokenType = "+"
 	TOKEN_MINUS    TokenType = "-"
@@ -22,21 +21,22 @@ const (
 	TOKEN_EQ       TokenType = "=="
 	TOKEN_NOT_EQ   TokenType = "!="
 
-	// Delimiters
 	TOKEN_COMMA     TokenType = ","
 	TOKEN_SEMICOLON TokenType = ";"
+	TOKEN_COLON     TokenType = ":"
 	TOKEN_LPAREN    TokenType = "("
 	TOKEN_RPAREN    TokenType = ")"
 	TOKEN_LBRACE    TokenType = "{"
 	TOKEN_RBRACE    TokenType = "}"
+	TOKEN_LBRACKET  TokenType = "["
+	TOKEN_RBRACKET  TokenType = "]"
 
-	// Keywords
 	TOKEN_TANDA    TokenType = "TANDA"
 	TOKEN_CETAK    TokenType = "CETAK"
 	TOKEN_TANYA    TokenType = "TANYA"
 	TOKEN_LAMUN    TokenType = "LAMUN"
 	TOKEN_LAMUNTEU TokenType = "LAMUNTEU"
-	TOKEN_KEDAP    TokenType = "KEDAP" 
+	TOKEN_KEDAP    TokenType = "KEDAP"
 	TOKEN_BENER    TokenType = "BENER"
 	TOKEN_SALAH    TokenType = "SALAH"
 	TOKEN_FUNGSI   TokenType = "FUNGSI"
@@ -49,7 +49,7 @@ var keywords = map[string]TokenType{
 	"tanyakeun": TOKEN_TANYA,
 	"lamun":     TOKEN_LAMUN,
 	"lamunteu":  TOKEN_LAMUNTEU,
-	"kedap":     TOKEN_KEDAP, 
+	"kedap":     TOKEN_KEDAP,
 	"bener":     TOKEN_BENER,
 	"salah":     TOKEN_SALAH,
 	"fungsi":    TOKEN_FUNGSI,
