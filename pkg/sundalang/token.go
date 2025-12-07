@@ -16,10 +16,18 @@ const (
 	TOKEN_ASTERISK TokenType = "*"
 	TOKEN_SLASH    TokenType = "/"
 	TOKEN_MODULO   TokenType = "%"
+	
 	TOKEN_LT       TokenType = "<"
 	TOKEN_GT       TokenType = ">"
+	TOKEN_LTE      TokenType = "<=" 
+	TOKEN_GTE      TokenType = ">=" 
+	
 	TOKEN_EQ       TokenType = "=="
 	TOKEN_NOT_EQ   TokenType = "!="
+	
+
+	TOKEN_AND      TokenType = "&&" 
+	TOKEN_OR       TokenType = "||" 
 
 	TOKEN_COMMA     TokenType = ","
 	TOKEN_SEMICOLON TokenType = ";"

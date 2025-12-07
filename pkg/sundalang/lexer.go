@@ -34,14 +34,12 @@ func (l *Lexer) NextToken() Token {
 	var tok Token
 	for {
 		l.skipWhitespace()
-
 		if l.ch == '#' {
 			for l.ch != '\n' && l.ch != 0 {
 				l.readChar()
 			}
 			continue
 		}
-		
 		break
 	}
 
@@ -66,6 +64,22 @@ func (l *Lexer) NextToken() Token {
 		} else {
 			tok = newToken(TOKEN_BANG, l.ch)
 		}
+	case '&': 
+		if l.peekChar() == '&' {
+			ch := l.ch
+			l.readChar()
+			tok = Token{Type: TOKEN_AND, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(TOKEN_ILLEGAL, l.ch)
+		}
+	case '|': 
+		if l.peekChar() == '|' {
+			ch := l.ch
+			l.readChar()
+			tok = Token{Type: TOKEN_OR, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(TOKEN_ILLEGAL, l.ch)
+		}
 	case '*':
 		tok = newToken(TOKEN_ASTERISK, l.ch)
 	case '/':
@@ -73,9 +87,21 @@ func (l *Lexer) NextToken() Token {
 	case '%':
 		tok = newToken(TOKEN_MODULO, l.ch)
 	case '<':
-		tok = newToken(TOKEN_LT, l.ch)
+		if l.peekChar() == '=' { 
+			ch := l.ch
+			l.readChar()
+			tok = Token{Type: TOKEN_LTE, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(TOKEN_LT, l.ch)
+		}
 	case '>':
-		tok = newToken(TOKEN_GT, l.ch)
+		if l.peekChar() == '=' { 
+			ch := l.ch
+			l.readChar()
+			tok = Token{Type: TOKEN_GTE, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(TOKEN_GT, l.ch)
+		}
 	case ';':
 		tok = newToken(TOKEN_SEMICOLON, l.ch)
 	case ':':

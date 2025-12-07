@@ -75,6 +75,10 @@
  ```   
  % > modulo
  ```
+ ```
+ && > AND
+ ```
+
 
 ## 📦 Cara Install
 

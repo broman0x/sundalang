@@ -1,5 +1,3 @@
-# Ngawengku: Fungsi, Array
-
 # 1. Definisi Fungsi
 tanda tambah = fungsi(a, b) {
     balik a + b

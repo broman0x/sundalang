@@ -22,6 +22,7 @@ const (
 	FUNCTION_OBJ     = "FUNCTION"
 	ARRAY_OBJ        = "ARRAY"
 	HASH_OBJ         = "HASH"
+	BUILTIN_OBJ      = "BUILTIN"
 )
 
 type Object interface {
@@ -40,7 +41,7 @@ type HashKey struct {
 
 type Integer struct{ Value int64 }
 
-func (i *Integer) Inspect() string { return fmt.Sprintf("%d", i.Value) }
+func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
 func (i *Integer) Type() ObjectType { return INTEGER_OBJ }
 func (i *Integer) HashKey() HashKey {
 	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
@@ -48,7 +49,7 @@ func (i *Integer) HashKey() HashKey {
 
 type BooleanObject struct{ Value bool }
 
-func (b *BooleanObject) Inspect() string { return fmt.Sprintf("%t", b.Value) }
+func (b *BooleanObject) Inspect() string  { return fmt.Sprintf("%t", b.Value) }
 func (b *BooleanObject) Type() ObjectType { return BOOLEAN_OBJ }
 func (b *BooleanObject) HashKey() HashKey {
 	var value uint64
@@ -62,7 +63,7 @@ func (b *BooleanObject) HashKey() HashKey {
 
 type String struct{ Value string }
 
-func (s *String) Inspect() string { return s.Value }
+func (s *String) Inspect() string  { return s.Value }
 func (s *String) Type() ObjectType { return STRING_OBJ }
 func (s *String) HashKey() HashKey {
 	h := fnv.New64a()
@@ -72,17 +73,17 @@ func (s *String) HashKey() HashKey {
 
 type Null struct{}
 
-func (n *Null) Inspect() string { return "null" }
+func (n *Null) Inspect() string  { return "null" }
 func (n *Null) Type() ObjectType { return NULL_OBJ }
 
 type ReturnValue struct{ Value Object }
 
-func (rv *ReturnValue) Inspect() string { return rv.Value.Inspect() }
+func (rv *ReturnValue) Inspect() string  { return rv.Value.Inspect() }
 func (rv *ReturnValue) Type() ObjectType { return RETURN_VALUE_OBJ }
 
 type Error struct{ Message string }
 
-func (e *Error) Inspect() string { return "ERROR: " + e.Message }
+func (e *Error) Inspect() string  { return "ERROR: " + e.Message }
 func (e *Error) Type() ObjectType { return ERROR_OBJ }
 
 type Function struct {
@@ -91,7 +92,7 @@ type Function struct {
 	Env        *Environment
 }
 
-func (f *Function) Inspect() string { return "fungsi(...)" }
+func (f *Function) Inspect() string  { return "fungsi(...)" }
 func (f *Function) Type() ObjectType { return FUNCTION_OBJ }
 
 type Array struct {
@@ -130,6 +131,140 @@ func (h *Hash) Inspect() string {
 	out.WriteString(strings.Join(pairs, ", "))
 	out.WriteString("}")
 	return out.String()
+}
+
+type BuiltinFunction func(args ...Object) Object
+
+type Builtin struct {
+	Fn BuiltinFunction
+}
+
+func (b *Builtin) Type() ObjectType { return BUILTIN_OBJ }
+func (b *Builtin) Inspect() string  { return "fungsi bawaan" }
+
+var builtins = map[string]*Builtin{
+	"panjang": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 1 {
+				return &Error{Message: fmt.Sprintf("panjang() butuh 1 argumen, dibere %d", len(args))}
+			}
+			switch arg := args[0].(type) {
+			case *Array:
+				return &Integer{Value: int64(len(arg.Elements))}
+			case *String:
+				return &Integer{Value: int64(len(arg.Value))}
+			default:
+				return &Error{Message: fmt.Sprintf("argumen ka panjang() teu didukung, tipe: %s", args[0].Type())}
+			}
+		},
+	},
+	"mimiti": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 1 {
+				return &Error{Message: "mimiti() butuh 1 argumen array"}
+			}
+			if args[0].Type() != ARRAY_OBJ {
+				return &Error{Message: "argumen mimiti() kudu ARRAY"}
+			}
+			arr := args[0].(*Array)
+			if len(arr.Elements) > 0 {
+				return arr.Elements[0]
+			}
+			return NULL
+		},
+	},
+	"tungtung": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 1 {
+				return &Error{Message: "tungtung() butuh 1 argumen array"}
+			}
+			if args[0].Type() != ARRAY_OBJ {
+				return &Error{Message: "argumen tungtung() kudu ARRAY"}
+			}
+			arr := args[0].(*Array)
+			length := len(arr.Elements)
+			if length > 0 {
+				return arr.Elements[length-1]
+			}
+			return NULL
+		},
+	},
+	"asupkeun": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 2 {
+				return &Error{Message: "asupkeun() butuh 2 argumen (array, isi)"}
+			}
+			if args[0].Type() != ARRAY_OBJ {
+				return &Error{Message: "argumen kahiji asupkeun() kudu ARRAY"}
+			}
+			arr := args[0].(*Array)
+			length := len(arr.Elements)
+			newElements := make([]Object, length+1, length+1)
+			copy(newElements, arr.Elements)
+			newElements[length] = args[1]
+			return &Array{Elements: newElements}
+		},
+	},
+	
+	"kapital": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 1 {
+				return &Error{Message: "kapital() butuh 1 argumen string"}
+			}
+			if args[0].Type() != STRING_OBJ {
+				return &Error{Message: "argumen kapital() kudu STRING"}
+			}
+			return &String{Value: strings.ToUpper(args[0].(*String).Value)}
+		},
+	},
+	"leutik": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 1 {
+				return &Error{Message: "leutik() butuh 1 argumen string"}
+			}
+			if args[0].Type() != STRING_OBJ {
+				return &Error{Message: "argumen leutik() kudu STRING"}
+			}
+			return &String{Value: strings.ToLower(args[0].(*String).Value)}
+		},
+	},
+
+	"kana_angka": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 1 {
+				return &Error{Message: "kana_angka() butuh 1 argumen"}
+			}
+			switch arg := args[0].(type) {
+			case *String:
+				val, err := strconv.ParseInt(arg.Value, 0, 64)
+				if err != nil {
+					return &Error{Message: "gagal konversi string ka angka: " + arg.Value}
+				}
+				return &Integer{Value: val}
+			case *Integer:
+				return arg
+			default:
+				return &Error{Message: "tipe teu didukung keur kana_angka()"}
+			}
+		},
+	},
+	"kana_tulisan": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 1 {
+				return &Error{Message: "kana_tulisan() butuh 1 argumen"}
+			}
+			return &String{Value: args[0].Inspect()}
+		},
+	},
+
+	"tipe": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 1 {
+				return &Error{Message: "tipe() butuh 1 argumen"}
+			}
+			return &String{Value: string(args[0].Type())}
+		},
+	},
 }
 
 type Environment struct {
@@ -305,41 +440,39 @@ func evalExpressions(exps []Expression, env *Environment) []Object {
 }
 
 func applyFunction(fn Object, args []Object) Object {
-	function, ok := fn.(*Function)
-	if !ok {
+	switch fn := fn.(type) {
+	case *Function:
+		extendedEnv := NewEnclosedEnvironment(fn.Env)
+		for i, param := range fn.Parameters {
+			extendedEnv.Set(param.Value, args[i])
+		}
+		evaluated := Eval(fn.Body, extendedEnv)
+		if returnValue, ok := evaluated.(*ReturnValue); ok {
+			return returnValue.Value
+		}
+		return evaluated
+	case *Builtin:
+		return fn.Fn(args...)
+	default:
 		return &Error{Message: "lain fungsi (not a function): " + string(fn.Type())}
 	}
-
-	extendedEnv := NewEnclosedEnvironment(function.Env)
-	for i, param := range function.Parameters {
-		extendedEnv.Set(param.Value, args[i])
-	}
-	evaluated := Eval(function.Body, extendedEnv)
-	if returnValue, ok := evaluated.(*ReturnValue); ok {
-		return returnValue.Value
-	}
-	return evaluated
 }
 
 func evalHashLiteral(node *HashLiteral, env *Environment) Object {
 	pairs := make(map[HashKey]HashPair)
-
 	for keyNode, valueNode := range node.Pairs {
 		key := Eval(keyNode, env)
 		if isError(key) {
 			return key
 		}
-
 		hashKey, ok := key.(Hashable)
 		if !ok {
 			return &Error{Message: "konci teu valid (unusable as hash key): " + string(key.Type())}
 		}
-
 		value := Eval(valueNode, env)
 		if isError(value) {
 			return value
 		}
-
 		hashed := hashKey.HashKey()
 		pairs[hashed] = HashPair{Key: key, Value: value}
 	}
@@ -360,11 +493,9 @@ func evalArrayIndexExpression(array, index Object) Object {
 	arrayObject := array.(*Array)
 	idx := index.(*Integer).Value
 	max := int64(len(arrayObject.Elements) - 1)
-
 	if idx < 0 || idx > max {
 		return NULL
 	}
-
 	return arrayObject.Elements[idx]
 }
 
@@ -374,7 +505,6 @@ func evalHashIndexExpression(hash, index Object) Object {
 	if !ok {
 		return &Error{Message: "konci teu valid (unusable as hash key): " + string(index.Type())}
 	}
-
 	pair, ok := hashObject.Pairs[key.HashKey()]
 	if !ok {
 		return NULL
@@ -383,11 +513,13 @@ func evalHashIndexExpression(hash, index Object) Object {
 }
 
 func evalIdentifier(node *Identifier, env *Environment) Object {
-	val, ok := env.Get(node.Value)
-	if !ok {
-		return &Error{Message: "identifier teu kapanggih (not found): " + node.Value}
+	if val, ok := env.Get(node.Value); ok {
+		return val
 	}
-	return val
+	if builtin, ok := builtins[node.Value]; ok {
+		return builtin
+	}
+	return &Error{Message: "identifier teu kapanggih (not found): " + node.Value}
 }
 
 func nativeBoolToBooleanObject(input bool) *BooleanObject {
@@ -429,18 +561,37 @@ func evalMinusPrefixOperatorExpression(right Object) Object {
 }
 
 func evalInfixExpression(operator string, left, right Object) Object {
+	if operator == "&&" {
+		return nativeBoolToBooleanObject(isTruthy(left) && isTruthy(right))
+	}
+	if operator == "||" {
+		return nativeBoolToBooleanObject(isTruthy(left) || isTruthy(right))
+	}
+
 	if left.Type() == INTEGER_OBJ && right.Type() == INTEGER_OBJ {
 		return evalIntegerInfixExpression(operator, left.(*Integer), right.(*Integer))
 	}
+
+	if operator == "+" {
+		if left.Type() == STRING_OBJ && right.Type() == STRING_OBJ {
+			return &String{Value: left.(*String).Value + right.(*String).Value}
+		}
+		if left.Type() == STRING_OBJ && right.Type() == INTEGER_OBJ {
+			return &String{Value: left.(*String).Value + fmt.Sprintf("%d", right.(*Integer).Value)}
+		}
+		if left.Type() == INTEGER_OBJ && right.Type() == STRING_OBJ {
+			return &String{Value: fmt.Sprintf("%d", left.(*Integer).Value) + right.(*String).Value}
+		}
+	}
+
+
 	if operator == "==" {
 		return nativeBoolToBooleanObject(left == right)
 	}
 	if operator == "!=" {
 		return nativeBoolToBooleanObject(left != right)
 	}
-	if left.Type() == STRING_OBJ && right.Type() == STRING_OBJ && operator == "+" {
-		return &String{Value: left.(*String).Value + right.(*String).Value}
-	}
+
 	return &Error{Message: fmt.Sprintf("tipe teu cocok (mismatch): %s %s %s", left.Type(), operator, right.Type())}
 }
 
@@ -465,6 +616,10 @@ func evalIntegerInfixExpression(operator string, left, right *Integer) Object {
 		return nativeBoolToBooleanObject(lVal < rVal)
 	case ">":
 		return nativeBoolToBooleanObject(lVal > rVal)
+	case "<=":
+		return nativeBoolToBooleanObject(lVal <= rVal)
+	case ">=":
+		return nativeBoolToBooleanObject(lVal >= rVal)
 	case "==":
 		return nativeBoolToBooleanObject(lVal == rVal)
 	case "!=":

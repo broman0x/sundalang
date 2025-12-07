@@ -8,6 +8,8 @@ import (
 const (
 	_ int = iota
 	LOWEST
+	OR
+	AND
 	EQUALS
 	LESSGREATER
 	SUM
@@ -86,7 +88,6 @@ func (p *Parser) parseVarStatement() *VarStatement {
 	if p.peekToken.Type == TOKEN_SEMICOLON {
 		p.nextToken()
 	}
-
 	return stmt
 }
 
@@ -98,19 +99,16 @@ func (p *Parser) parseReturnStatement() *ReturnStatement {
 	if p.peekToken.Type == TOKEN_SEMICOLON {
 		p.nextToken()
 	}
-
 	return stmt
 }
 
 func (p *Parser) parseExpressionStatement() *ExpressionStatement {
 	stmt := &ExpressionStatement{Token: p.curToken}
-
 	stmt.Expression = p.parseExpression(LOWEST)
 
 	if p.peekToken.Type == TOKEN_SEMICOLON {
 		p.nextToken()
 	}
-
 	return stmt
 }
 
@@ -124,11 +122,9 @@ func (p *Parser) parsePrintStatement() *PrintStatement {
 	if !p.expectPeek(TOKEN_RPAREN) {
 		return nil
 	}
-
 	if p.peekToken.Type == TOKEN_SEMICOLON {
 		p.nextToken()
 	}
-
 	return stmt
 }
 
@@ -140,12 +136,23 @@ func (p *Parser) parseIfStatement() *IfExpression {
 		return nil
 	}
 	expression.Consequence = p.parseBlockStatement()
+
 	if p.peekToken.Type == TOKEN_LAMUNTEU {
-		p.nextToken()
-		if !p.expectPeek(TOKEN_LBRACE) {
-			return nil
+		p.nextToken() 
+
+		if p.peekToken.Type == TOKEN_LAMUN {
+			p.nextToken() 
+			elseIf := p.parseIfStatement()
+			expression.Alternative = &BlockStatement{
+				Token:      p.curToken,
+				Statements: []Statement{elseIf},
+			}
+		} else {
+			if !p.expectPeek(TOKEN_LBRACE) {
+				return nil
+			}
+			expression.Alternative = p.parseBlockStatement()
 		}
-		expression.Alternative = p.parseBlockStatement()
 	}
 	return expression
 }
@@ -231,53 +238,41 @@ func (p *Parser) parseArrayLiteral() Expression {
 func (p *Parser) parseHashLiteral() Expression {
 	hash := &HashLiteral{Token: p.curToken}
 	hash.Pairs = make(map[Expression]Expression)
-
 	for p.peekToken.Type != TOKEN_RBRACE {
 		p.nextToken()
 		key := p.parseExpression(LOWEST)
-
 		if !p.expectPeek(TOKEN_COLON) {
 			return nil
 		}
-
 		p.nextToken()
 		value := p.parseExpression(LOWEST)
-
 		hash.Pairs[key] = value
-
 		if p.peekToken.Type != TOKEN_RBRACE && !p.expectPeek(TOKEN_COMMA) {
 			return nil
 		}
 	}
-
 	if !p.expectPeek(TOKEN_RBRACE) {
 		return nil
 	}
-
 	return hash
 }
 
 func (p *Parser) parseExpressionList(end TokenType) []Expression {
 	list := []Expression{}
-
 	if p.peekToken.Type == end {
 		p.nextToken()
 		return list
 	}
-
 	p.nextToken()
 	list = append(list, p.parseExpression(LOWEST))
-
 	for p.peekToken.Type == TOKEN_COMMA {
 		p.nextToken()
 		p.nextToken()
 		list = append(list, p.parseExpression(LOWEST))
 	}
-
 	if !p.expectPeek(end) {
 		return nil
 	}
-
 	return list
 }
 
@@ -307,7 +302,6 @@ func (p *Parser) parseFunctionParameters() []*Identifier {
 	p.nextToken()
 	ident := &Identifier{Token: p.curToken, Value: p.curToken.Literal}
 	identifiers = append(identifiers, ident)
-
 	for p.peekToken.Type == TOKEN_COMMA {
 		p.nextToken()
 		p.nextToken()
@@ -353,7 +347,7 @@ func (p *Parser) parseInputExpression() Expression {
 
 func (p *Parser) infixParseFn(t TokenType) func(Expression) Expression {
 	switch t {
-	case TOKEN_PLUS, TOKEN_MINUS, TOKEN_SLASH, TOKEN_ASTERISK, TOKEN_MODULO, TOKEN_EQ, TOKEN_NOT_EQ, TOKEN_LT, TOKEN_GT:
+	case TOKEN_PLUS, TOKEN_MINUS, TOKEN_SLASH, TOKEN_ASTERISK, TOKEN_MODULO, TOKEN_EQ, TOKEN_NOT_EQ, TOKEN_LT, TOKEN_GT, TOKEN_LTE, TOKEN_GTE, TOKEN_AND, TOKEN_OR:
 		return func(left Expression) Expression {
 			expression := &InfixExpression{Token: p.curToken, Operator: p.curToken.Literal, Left: left}
 			precedence := p.curPrecedence()
@@ -397,9 +391,13 @@ func (p *Parser) peekPrecedence() int { return p.getPrecedence(p.peekToken.Type)
 func (p *Parser) curPrecedence() int { return p.getPrecedence(p.curToken.Type) }
 func (p *Parser) getPrecedence(t TokenType) int {
 	switch t {
+	case TOKEN_OR:
+		return OR
+	case TOKEN_AND:
+		return AND
 	case TOKEN_EQ, TOKEN_NOT_EQ:
 		return EQUALS
-	case TOKEN_LT, TOKEN_GT:
+	case TOKEN_LT, TOKEN_GT, TOKEN_LTE, TOKEN_GTE:
 		return LESSGREATER
 	case TOKEN_PLUS, TOKEN_MINUS:
 		return SUM
