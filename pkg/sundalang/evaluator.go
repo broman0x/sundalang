@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type ObjectType string
@@ -265,6 +266,9 @@ var builtins = map[string]*Builtin{
 			return &String{Value: string(args[0].Type())}
 		},
 	},
+
+	"sare": {Fn: fungsiSare},
+	"reureuh": {Fn: fungsiSare}, // Sarua keneh jeung sare, ngan ganti ngaran hungkul.
 }
 
 type Environment struct {
@@ -487,6 +491,19 @@ func evalIndexExpression(left, index Object) Object {
 		return evalHashIndexExpression(left, index)
 	}
 	return &Error{Message: fmt.Sprintf("indeks operasi teu didukung: %s", left.Type())}
+}
+
+func fungsiSare(args ...Object) Object {
+	if len(args) != 1 {
+		return &Error{Message: "sare() atawa reureuh() butuh 1 argumen (waktu dina milidetik contohna 1000 artina sadetik)"}
+	}
+	if args[0].Type() != INTEGER_OBJ {
+		return &Error{Message: "argumen waktu kudu INTEGER"}
+	}
+
+	ms := args[0].(*Integer).Value
+	time.Sleep(time.Duration(ms) * time.Millisecond)
+	return NULL
 }
 
 func evalArrayIndexExpression(array, index Object) Object {
