@@ -305,7 +305,7 @@ func main() {
 
 		switch arg {
 		case "-v", "--version":
-			fmt.Println("SundaLang v1.0.2")
+			fmt.Println("SundaLang v1.0.3")
 			fmt.Println("Bahasa Pemrograman Sunda Pandeglang")
 
 			return

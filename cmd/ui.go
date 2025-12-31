@@ -36,7 +36,7 @@ func printBanner() {
 			colorize(ColorWhite+ColorBold, "╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ "))
 	fmt.Println()
 	fmt.Println(colorize(ColorWhite, "                   Bahasa Pemrograman Sunda Pandeglang"))
-	fmt.Println(colorize(ColorGray, "                              v1.0.2"))
+	fmt.Println(colorize(ColorGray, "                              v1.0.3"))
 	fmt.Println()
 }
 
