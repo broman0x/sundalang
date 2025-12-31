@@ -4,7 +4,7 @@
 
 <h1 align="center">SundaLang</h1>
 <p align="center">
-  <strong>Basa Pemrograman Sunda Pandeglang</strong><br>
+  <strong>Bahasa Pemrograman Sunda Pandeglang</strong><br>
   <em>Sederhana, Modern</em>
 </p>
 
@@ -29,9 +29,9 @@
   <a href="#-kontribusi">Kontribusi</a>
 </p>
 
-> **"Diajar koding bari ngamumulé basa indung."**
+> **"Diajar koding bari ngamumule bahasa indung."**
 
-**SundaLang** adalah bahasa pemrograman esoteric (esolang) berbasis interpreter yang menggunakan kosa kata asli **Bahasa Sunda Pandeglang**, Banten. Dibuat untuk edukasi, melatih logika berpikir, sekaligus ngamumulé budaya lokal lewat coding.
+**SundaLang** adalah bahasa pemrograman esoteric (esolang) berbasis interpreter yang menggunakan kosa kata asli **Bahasa Sunda Pandeglang**, Banten. Dibuat untuk edukasi, melatih logika berpikir, sekaligus ngamumule budaya lokal lewat coding.
 
 ## ✨ Fitur Utama
 
@@ -39,6 +39,7 @@
 - **Nyunda 100%** → Keyword pakai dialek Pandeglang (kedap, lamun, cetakkeun, dsb)  
 - **Ringan & Cepat** → Dibangun dengan Go, tanpa dependency berat  
 - **Lengkap** → Variabel, if-else, loop, fungsi, operasi matematika  
+- **Self-Installer** → Binary dengan installer built-in
 - **Open Source** → Bebas dikembangkan bareng-bareng
 
 ## 📚 Kamus Syntax
@@ -82,28 +83,152 @@
 
 ## 📦 Cara Install
 
-Pastikan sudah terinstall **Go 1.22+**.
+### ⚡ Quick Install (Recommended)
 
-### Rekomendasi (paling gampang)
+Download dan jalankan installer otomatis dengan one-liner:
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/broman0x/sundalang/main/install.ps1 | iex
+```
+
+**Linux/macOS:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/broman0x/sundalang/main/install.sh | bash
+```
+
+Script akan otomatis:
+- Download binary terbaru dari GitHub Releases
+- Install ke `~/.sundalang/bin/`
+- Tambahkan ke PATH
+
+**Verifikasi instalasi:**
+```bash
+sundalang --version
+```
+
+**Uninstall:**
+
+Windows:
+```powershell
+irm https://raw.githubusercontent.com/broman0x/sundalang/main/uninstall.ps1 | iex
+```
+
+Linux/macOS:
+```bash
+curl -fsSL https://raw.githubusercontent.com/broman0x/sundalang/main/uninstall.sh | bash
+```
+
+---
+
+### 🎯 Manual Install via Binary
+
+Download binary dari [GitHub Releases](https://github.com/broman0x/sundalang/releases) sesuai platform:
+
+**Windows:** `sundalang.exe`  
+**Linux:** `sundalang`  
+**macOS Intel:** `sundalang-macos`  
+**macOS ARM:** `sundalang-macos-arm64`
+
+Jalankan installer built-in:
+
+```bash
+./sundalang install
+```
+
+Binary akan otomatis:
+- Copy dirinya ke `~/.sundalang/bin/`
+- Update PATH (Windows otomatis, Linux/macOS perlu manual)
+
+**Linux/macOS - Tambahkan ke PATH:**
+```bash
+echo 'export PATH="$HOME/.sundalang/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**Uninstall:**
+```bash
+sundalang uninstall
+```
+
+---
+
+### 🔧 Interactive Launcher
+
+Jalankan binary tanpa argument untuk membuka **interactive menu**:
+
+```bash
+sundalang
+```
+
+Menu menyediakan:
+- Install SundaLang ke sistem
+- Uninstall SundaLang
+- Jalankan file .sl
+- Buka REPL mode
+- Keluar
+
+---
+
+## 🚀 Cara Pakai
+
+**Jalankan file .sl:**
+```bash
+sundalang hello.sl
+```
+
+**REPL Mode (Interactive):**
+```bash
+sundalang
+# Pilih [4] Buka REPL mode
+```
+
+**Lihat versi:**
+```bash
+sundalang --version
+```
+
+**Help:**
+```bash
+sundalang --help
+```
+
+---
+
+## � Development
+
+Untuk development atau build dari source:
+
+**Prasyarat:** Go 1.22+
+
 ```bash
 git clone https://github.com/broman0x/sundalang.git
 cd sundalang
-```
-### Cara menjalankannya
-```bash
-.\run-sunda examples\hello.sl
-.\run-sunda file.sl
+go build -o sundalang ./cmd/...
 ```
 
-### 🤝 Kontribusi
+**Jalankan:**
+```bash
+./sundalang examples/hello.sl
 ```
-Kami sangat senang kalau baraya rék nyumbangkeun!
-1.Fork repo ini
-2.Buat branch baru (git checkout -b fitur-anyar)
-3.Commit (git commit -m 'Nambihan fitur mantap')
-4.Push & buat Pull Request
-```
+
+---
+
+## 🤝 Kontribusi
+
+Kami sangat senang kalau baraya rek nyumbangkeun!
+
+1. Fork repo ini
+2. Buat branch baru (`git checkout -b fitur-anyar`)
+3. Commit (`git commit -m 'Nambihan fitur mantap'`)
+4. Push & buat Pull Request
+
 Ayo bareng-bareng ngajadikeun SundaLang leuwih gagah!
 
-### 📄 Lisensi
-Dirilis di bawah MIT License. Lihat file LICENSE untuk detail.
+---
+
+## 📄 Lisensi
+
+Dirilis di bawah MIT License. Lihat file [LICENSE](LICENSE) untuk detail.
+
+---

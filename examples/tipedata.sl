@@ -1,5 +1,3 @@
-# === PANDUAN TIPE DATA SUNDALANG v1.0.1 ===
-
 # 1. INTEGER (Bilangan Bulat)
 # Biasa dipake jang itungan
 tanda umur = 25
@@ -9,7 +7,7 @@ cetakkeun("--- Integer ---")
 cetakkeun(umur)
 cetakkeun(hasil)
 
-# 2. STRING (Téks)
+# 2. STRING (Teks)
 # Diapit ku kutip dua ("")
 # Bisa digabung make tanda tambah (+)
 tanda ngaran = "Kabayan"
@@ -34,9 +32,9 @@ tanda angka = [10, 20, 30]
 
 cetakkeun("--- Array ---")
 cetakkeun("Hobi ka-1:")
-cetakkeun(hobi[0])  # Akses elemen kahiji
+cetakkeun(hobi[0])  #
 cetakkeun("Hobi ka-3:")
-cetakkeun(hobi[2])  # Akses elemen katilu
+cetakkeun(hobi[2])  
 cetakkeun("Jumlah angka:")
 cetakkeun(angka[0] + angka[1]) # 10 + 20
 
@@ -72,3 +70,4 @@ tanda data_kompleks = [
 cetakkeun("--- Kombinasi ---")
 tanda user_kahiji = data_kompleks[0]
 cetakkeun(user_kahiji["ngaran"]) # Output: Asep
+

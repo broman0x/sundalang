@@ -28,3 +28,4 @@ lamun nilai >= 90 {
     cetakkeun("Grade: E (Gagal)")
     cetakkeun("Wayahna kudu ngulang taun hareup.")
 }
+

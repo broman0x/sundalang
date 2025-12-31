@@ -14,4 +14,4 @@ lamun sisa == 0 {
     cetakkeun("Hasilna: Ieu teh angka GENAP.")
 } lamunteu {
     cetakkeun("Hasilna: Ieu teh angka GANJIL.")
-}
+}-

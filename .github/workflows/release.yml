@@ -1,0 +1,137 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  
+
+jobs:
+  build:
+    name: Build Cross-Platform Binaries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: windows
+            goarch: amd64
+            output: sundalang.exe
+          - goos: linux
+            goarch: amd64
+            output: sundalang
+          - goos: darwin
+            goarch: amd64
+            output: sundalang-macos
+          - goos: darwin
+            goarch: arm64
+            output: sundalang-macos-arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          go build -ldflags="-s -w" -o ${{ matrix.output }} ./cmd/sundalang.go
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.goos }}-${{ matrix.goarch }}
+          path: ${{ matrix.output }}
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Display structure
+        run: ls -R ./artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./artifacts/windows-amd64/sundalang.exe
+            ./artifacts/linux-amd64/sundalang
+            ./artifacts/darwin-amd64/sundalang-macos
+            ./artifacts/darwin-arm64/sundalang-macos-arm64
+            install.ps1
+            uninstall.ps1
+            install.sh
+            uninstall.sh
+          body: |
+            ## SundaLang Release ${{ github.ref_name }}
+            
+            **Basa Pemrograman Sunda Pandeglang** 🇮🇩
+            
+            ### 📦 Quick Install (Recommended)
+            
+            **Windows (PowerShell):**
+            ```powershell
+            irm https://raw.githubusercontent.com/broman0x/sundalang/main/install.ps1 | iex
+            ```
+            
+            **Linux/macOS:**
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/broman0x/sundalang/main/install.sh | bash
+            ```
+            
+            Installer akan otomatis:
+            - Download binary terbaru
+            - Install ke `~/.sundalang/bin/` (Linux/macOS) atau `%USERPROFILE%\.sundalang\bin\` (Windows)
+            - Tambahkan ke PATH
+            
+            Setelah install, restart terminal dan jalankan:
+            ```bash
+            sundalang --version
+            sundalang namafile.sl
+            ```
+            
+            ### 🗑️ Uninstall
+            
+            **Windows:**
+            ```powershell
+            irm https://raw.githubusercontent.com/broman0x/sundalang/main/uninstall.ps1 | iex
+            ```
+            
+            **Linux/macOS:**
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/broman0x/sundalang/main/uninstall.sh | bash
+            ```
+            
+            ---
+            
+            ### 💾 Manual Download
+            Pilih binary sesuai dengan sistem operasi Anda:
+            - **Windows (64-bit)**: `sundalang.exe`
+            - **Linux (64-bit)**: `sundalang`
+            - **macOS Intel**: `sundalang-macos`
+            - **macOS Apple Silicon (M1/M2)**: `sundalang-macos-arm64`
+            
+            ### Manual Usage
+            1. Download binary yang sesuai
+            2. (Linux/macOS) Berikan akses eksekusi: `chmod +x sundalang`
+            3. Jalankan program: `./sundalang examples/hello.sl`
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

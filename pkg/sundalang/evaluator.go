@@ -206,24 +206,24 @@ var builtins = map[string]*Builtin{
 		},
 	},
 	
-	"kapital": {
+	"garede": {
 		Fn: func(args ...Object) Object {
 			if len(args) != 1 {
-				return &Error{Message: "kapital() butuh 1 argumen string"}
+				return &Error{Message: "garede() butuh 1 argumen string"}
 			}
 			if args[0].Type() != STRING_OBJ {
-				return &Error{Message: "argumen kapital() kudu STRING"}
+				return &Error{Message: "argumen garede() kudu STRING"}
 			}
 			return &String{Value: strings.ToUpper(args[0].(*String).Value)}
 		},
 	},
-	"leutik": {
+	"laleutik": {
 		Fn: func(args ...Object) Object {
 			if len(args) != 1 {
-				return &Error{Message: "leutik() butuh 1 argumen string"}
+				return &Error{Message: "laleutik() butuh 1 argumen string"}
 			}
 			if args[0].Type() != STRING_OBJ {
-				return &Error{Message: "argumen leutik() kudu STRING"}
+				return &Error{Message: "argumen laleutik() kudu STRING"}
 			}
 			return &String{Value: strings.ToLower(args[0].(*String).Value)}
 		},

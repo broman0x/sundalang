@@ -1,3 +1,3 @@
 # Fitur Kapital & Leutik
-cetakkeun("Kapital: " + kapital("ngaran"))
-cetakkeun("Leutik : " + leutik("PANDEGLANG JUARA"))
+cetakkeun("Kapital: " + garede("ngaran"))
+cetakkeun("Kecil : " + laleutik("PANDEGLANG JUARA"))
