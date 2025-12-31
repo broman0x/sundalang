@@ -81,7 +81,7 @@ jobs:
           body: |
             ## SundaLang Release ${{ github.ref_name }}
             
-            **Basa Pemrograman Sunda Pandeglang** 🇮🇩
+            **Bahasa Pemrograman Sunda Pandeglang** 🇮🇩
             
             ### 📦 Quick Install (Recommended)
             
