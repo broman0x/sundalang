@@ -39,7 +39,7 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
-          go build -ldflags="-s -w" -o ${{ matrix.output }} ./cmd/sundalang.go
+          go build -ldflags="-s -w" -o ${{ matrix.output }} ./cmd/...
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
