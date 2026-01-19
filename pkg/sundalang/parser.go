@@ -8,6 +8,7 @@ import (
 const (
 	_ int = iota
 	LOWEST
+	ASSIGN
 	OR
 	AND
 	EQUALS
@@ -58,7 +59,7 @@ func (p *Parser) ParseProgram() *Program {
 
 func (p *Parser) parseStatement() Statement {
 	switch p.curToken.Type {
-	case TOKEN_TANDA:
+	case TOKEN_TANDA, TOKEN_TETEP:
 		return p.parseVarStatement()
 	case TOKEN_BALIK:
 		return p.parseReturnStatement()
@@ -68,6 +69,16 @@ func (p *Parser) parseStatement() Statement {
 		return p.parseIfStatement()
 	case TOKEN_KEDAP:
 		return p.parseWhileStatement()
+	case TOKEN_EUREUN:
+		return p.parseBreakStatement()
+	case TOKEN_PIKEUN:
+		return p.parseForStatement()
+	case TOKEN_MILIH:
+		return p.parseSwitchStatement()
+	case TOKEN_BUKA:
+		return p.parseImportStatement()
+	case TOKEN_COBAAN:
+		return p.parseTryStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -138,10 +149,10 @@ func (p *Parser) parseIfStatement() *IfExpression {
 	expression.Consequence = p.parseBlockStatement()
 
 	if p.peekToken.Type == TOKEN_LAMUNTEU {
-		p.nextToken() 
+		p.nextToken()
 
 		if p.peekToken.Type == TOKEN_LAMUN {
-			p.nextToken() 
+			p.nextToken()
 			elseIf := p.parseIfStatement()
 			expression.Alternative = &BlockStatement{
 				Token:      p.curToken,
@@ -165,6 +176,119 @@ func (p *Parser) parseWhileStatement() *WhileStatement {
 		return nil
 	}
 	stmt.Body = p.parseBlockStatement()
+	return stmt
+}
+
+func (p *Parser) parseImportStatement() *ImportStatement {
+	stmt := &ImportStatement{Token: p.curToken}
+	p.nextToken()
+
+	if p.curToken.Type != TOKEN_STRING {
+		p.errors = append(p.errors, fmt.Sprintf("kuduna aya STRING saenggeus 'buka', naon ja eweh? (kapanggih: %s)", p.curToken.Type))
+		return nil
+	}
+	stmt.Path = &StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
+
+	if p.peekToken.Type == TOKEN_SEMICOLON {
+		p.nextToken()
+	}
+	return stmt
+}
+
+func (p *Parser) parseSwitchStatement() *SwitchStatement {
+	stmt := &SwitchStatement{Token: p.curToken}
+	p.nextToken()
+
+	stmt.Value = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(TOKEN_LBRACE) {
+		return nil
+	}
+	p.nextToken()
+
+	stmt.Cases = []*CaseStatement{}
+
+	for p.curToken.Type != TOKEN_RBRACE && p.curToken.Type != TOKEN_EOF {
+		if p.curToken.Type == TOKEN_KASUS {
+			caseStmt := &CaseStatement{Token: p.curToken}
+			p.nextToken()
+			caseStmt.Value = p.parseExpression(LOWEST)
+
+			if !p.expectPeek(TOKEN_COLON) {
+				return nil
+			}
+
+			caseStmt.Body = p.parseCaseBlock()
+			stmt.Cases = append(stmt.Cases, caseStmt)
+
+		} else if p.curToken.Type == TOKEN_BAKU {
+			if !p.expectPeek(TOKEN_COLON) {
+				return nil
+			}
+			stmt.Default = p.parseCaseBlock()
+		} else {
+			p.nextToken()
+		}
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseCaseBlock() *BlockStatement {
+	block := &BlockStatement{Token: p.curToken}
+	block.Statements = []Statement{}
+
+	p.nextToken()
+
+	for p.curToken.Type != TOKEN_KASUS && p.curToken.Type != TOKEN_BAKU && p.curToken.Type != TOKEN_RBRACE && p.curToken.Type != TOKEN_EOF {
+		stmt := p.parseStatement()
+		if stmt != nil {
+			block.Statements = append(block.Statements, stmt)
+		}
+		p.nextToken()
+	}
+	return block
+}
+
+func (p *Parser) parseBreakStatement() *BreakStatement {
+	stmt := &BreakStatement{Token: p.curToken}
+	if p.peekToken.Type == TOKEN_SEMICOLON {
+		p.nextToken()
+	}
+	return stmt
+}
+
+func (p *Parser) parseForStatement() *ForStatement {
+	stmt := &ForStatement{Token: p.curToken}
+
+	p.nextToken()
+	stmt.Init = p.parseStatement()
+
+	if p.peekToken.Type == TOKEN_SEMICOLON {
+		p.nextToken()
+	} else if p.curToken.Type == TOKEN_SEMICOLON {
+	} else {
+	}
+	p.nextToken()
+
+	stmt.Condition = p.parseExpression(LOWEST)
+	if !p.expectPeek(TOKEN_SEMICOLON) {
+		return nil
+	}
+	p.nextToken()
+
+	stmt.Post = p.parseSimpleStatement()
+
+	if !p.expectPeek(TOKEN_LBRACE) {
+		return nil
+	}
+	stmt.Body = p.parseBlockStatement()
+	return stmt
+}
+
+func (p *Parser) parseSimpleStatement() Statement {
+	stmt := &ExpressionStatement{Token: p.curToken}
+	stmt.Expression = p.parseExpression(LOWEST)
 	return stmt
 }
 
@@ -225,6 +349,10 @@ func (p *Parser) prefixParseFn(t TokenType) func() Expression {
 		return p.parseArrayLiteral
 	case TOKEN_LBRACE:
 		return p.parseHashLiteral
+	case TOKEN_WADAH:
+		return p.parseWadahLiteral
+	case TOKEN_EWEHAN:
+		return func() Expression { return &NullLiteral{Token: p.curToken} }
 	}
 	return nil
 }
@@ -308,6 +436,7 @@ func (p *Parser) parseFunctionParameters() []*Identifier {
 		ident := &Identifier{Token: p.curToken, Value: p.curToken.Literal}
 		identifiers = append(identifiers, ident)
 	}
+
 	if !p.expectPeek(TOKEN_RPAREN) {
 		return nil
 	}
@@ -363,8 +492,24 @@ func (p *Parser) infixParseFn(t TokenType) func(Expression) Expression {
 		return func(left Expression) Expression {
 			return p.parseIndexExpression(left)
 		}
+	case TOKEN_ASSIGN:
+		return func(left Expression) Expression {
+			return p.parseAssignmentExpression(left)
+		}
 	}
 	return nil
+}
+
+func (p *Parser) parseAssignmentExpression(left Expression) Expression {
+	ident, ok := left.(*Identifier)
+	if !ok {
+		p.errors = append(p.errors, "assignment target not an identifier")
+		return nil
+	}
+	exp := &AssignmentExpression{Token: p.curToken, Name: ident}
+	p.nextToken()
+	exp.Value = p.parseExpression(LOWEST)
+	return exp
 }
 
 func (p *Parser) parseIndexExpression(left Expression) Expression {
@@ -388,7 +533,7 @@ func (p *Parser) parseCallArguments() []Expression {
 }
 
 func (p *Parser) peekPrecedence() int { return p.getPrecedence(p.peekToken.Type) }
-func (p *Parser) curPrecedence() int { return p.getPrecedence(p.curToken.Type) }
+func (p *Parser) curPrecedence() int  { return p.getPrecedence(p.curToken.Type) }
 func (p *Parser) getPrecedence(t TokenType) int {
 	switch t {
 	case TOKEN_OR:
@@ -407,6 +552,8 @@ func (p *Parser) getPrecedence(t TokenType) int {
 		return CALL
 	case TOKEN_LBRACKET:
 		return INDEX
+	case TOKEN_ASSIGN:
+		return ASSIGN
 	}
 	return LOWEST
 }
@@ -416,6 +563,32 @@ func (p *Parser) expectPeek(t TokenType) bool {
 		p.nextToken()
 		return true
 	}
-	p.errors = append(p.errors, fmt.Sprintf("expected %s, got %s", t, p.peekToken.Type))
+	p.errors = append(p.errors, fmt.Sprintf("kuduna aya %s, naon ja eweh? (kapanggih: %s)", t, p.peekToken.Type))
 	return false
+}
+
+func (p *Parser) parseWadahLiteral() Expression {
+	if !p.expectPeek(TOKEN_LBRACE) {
+		return nil
+	}
+	return p.parseHashLiteral()
+}
+
+func (p *Parser) parseTryStatement() *TryStatement {
+	stmt := &TryStatement{Token: p.curToken}
+
+	if !p.expectPeek(TOKEN_LBRACE) {
+		return nil
+	}
+	stmt.Block = p.parseBlockStatement()
+
+	if p.peekToken.Type == TOKEN_SANYA {
+		p.nextToken()
+		if !p.expectPeek(TOKEN_LBRACE) {
+			return nil
+		}
+		stmt.Catch = p.parseBlockStatement()
+	}
+
+	return stmt
 }

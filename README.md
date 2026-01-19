@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="https://sundalang.emandev.xyz/logo.png" alt="Logo SundaLang" width="180"/>
+  <img src="https://i.imgur.com/J8l3YP3.png" alt="Logo SundaLang" width="180"/>
 </p>
 
 <h1 align="center">SundaLang</h1>
 <p align="center">
   <strong>Bahasa Pemrograman Sunda Pandeglang</strong><br>
-  <em>Sederhana, Modern</em>
+  <em>Sederhana, Modern, Nyunda Pisan</em>
 </p>
 
 <p align="center">
@@ -25,61 +25,66 @@
 
 <p align="center">
   <a href="#-fitur-utama">Fitur</a> •
+  <a href="#-kamus-syntax">Kamus</a> •
   <a href="#-cara-install">Install</a> •
-  <a href="#-kontribusi">Kontribusi</a>
+  <a href="#-cara-pakai">Cara Pakai</a>
 </p>
 
 > **"Diajar koding bari ngamumule bahasa indung."**
 
-**SundaLang** adalah bahasa pemrograman esoteric (esolang) berbasis interpreter yang menggunakan kosa kata asli **Bahasa Sunda Pandeglang**, Banten. Dibuat untuk edukasi, melatih logika berpikir, sekaligus ngamumule budaya lokal lewat coding.
+**SundaLang** (Sunda Pandeglang Programming Language) adalah bahasa pemrograman esoteric (esolang) berbasis interpreter yang menggunakan kosa kata asli **Bahasa Sunda Pandeglang**, Banten. Dibuat untuk edukasi, melatih logika berpikir, sekaligus ngamumule budaya lokal lewat coding.
 
 ## ✨ Fitur Utama
 
-- **Sederhana** → Sintaks mirip Python/Go, mudah dipelajari pemula  
-- **Nyunda 100%** → Keyword pakai dialek Pandeglang (kedap, lamun, cetakkeun, dsb)  
-- **Ringan & Cepat** → Dibangun dengan Go, tanpa dependency berat  
-- **Lengkap** → Variabel, if-else, loop, fungsi, operasi matematika  
-- **Self-Installer** → Binary dengan installer built-in
-- **Open Source** → Bebas dikembangkan bareng-bareng
-
+- **Sederhana** → Sintaks mirip Python/Go, mudah dipelajari pemula.
+- **Nyunda 100%** → Keyword pakai dialek Pandeglang (`kedap`, `lamun`, `cetakkeun`, dsb).
+- **Ringan & Cepat** → Dibangun dengan Go, tanpa dependency berat.
+- **Lengkap** → Variabel, I/O, File Handling, Error Handling (`cobaan-sanya`), Array, Map (`wadah`).
 ## 📚 Kamus Syntax
- ```
- tanda > var / let
- ```
- ```
- cetakkeun > print
- ```
- ```
- tanyakeun > input
- ```
- ```
- lamun > if
- ```
- ```
- lamunteu > else
- ```
- ```
- kedap > while
- ```
- ```
- fungsi > function
- ```
- ```
- balik > return
- ```
- ```
- bener > true
- ```
- ```   
- salah > false
- ```
- ```   
- % > modulo
- ```
- ```
- && > AND
- ```
 
+Berikut adalah daftar padanan kata kunci dalam SundaLang:
+
+| SundaLang | Konsep Umum | Keterangan |
+| :--- | :--- | :--- |
+| `tanda` | `var` / `let` | Deklarasi variabel |
+| `tetep` | `const` | Konstanta |
+| `cetakkeun` | `print` | Mencetak output |
+| `tanyakeun` | `input` | Meminta input user |
+| `lamun` | `if` | Percabangan |
+| `lamunteu` | `else` | Percabangan alternatif |
+| `milih` | `switch` | Seleksi kondisi |
+| `kasus` | `case` | Kasus dalam switch |
+| `baku` | `default` | Default dalam switch |
+| `pikeun` | `for` | Perulangan |
+| `kedap` | `while` | Perulangan kondisi |
+| `eureun` | `break` | Berhenti dari loop |
+| `tuluy` | `continue` | Lanjut loop |
+| `pungsi` | `function` | Definisi fungsi |
+| `balik` / `balikkeun` | `return` | Mengembalikan nilai |
+| `buka` | `import` | Mengimpor file lain |
+| `wadah` | `map` / `struct` | Struktur data key-value |
+| `cobaan` | `try` | Mencoba blok kode |
+| `sanya` | `catch` | Menangkap error |
+| `bener` | `true` | Boolean benar |
+| `salah` | `false` | Boolean salah |
+| `ewehan` | `null` | Nilai kosong |
+
+### Fungsi Bawaan (Built-in)
+
+- `panjang(obj)`: Menghitung panjang string/array.
+- `mimiti(array)`: Mengambil elemen pertama array.
+- `tungtung(array)`: Mengambil elemen terakhir array.
+- `asupkeun(array, item)`: Menambahkan item ke array.
+- `garede(str)`: Uppercase string.
+- `laleutik(str)`: Lowercase string.
+- `kana_angka(str)`: Convert ke integer.
+- `kana_tulisan(obj)`: Convert ke string.
+- `tipe(obj)`: Cek tipe data.
+- `waktu()`: Cek waktu sekarang (jam:menit:detik).
+- `acak(max)`: Generate angka acak 0 s.d max.
+- `sare(ms)` / `reureuh(ms)`: Pause eksekusi (sleep).
+- `maca(path)`: Baca isi file.
+- `nyerat(path, content)`: Tulis ke file.
 
 ## 📦 Cara Install
 
@@ -98,121 +103,55 @@ curl -fsSL https://raw.githubusercontent.com/broman0x/sundalang/main/install.sh 
 ```
 
 Script akan otomatis:
-- Download binary terbaru dari GitHub Releases
+- Download binary terbaru (v1.0.4+)
 - Install ke `~/.sundalang/bin/`
 - Tambahkan ke PATH
 
-**Verifikasi instalasi:**
-```bash
-sundalang --version
-```
-
-**Uninstall:**
-
-Windows:
-```powershell
-irm https://raw.githubusercontent.com/broman0x/sundalang/main/uninstall.ps1 | iex
-```
-
-Linux/macOS:
-```bash
-curl -fsSL https://raw.githubusercontent.com/broman0x/sundalang/main/uninstall.sh | bash
-```
-
----
-
 ### 🎯 Manual Install via Binary
 
-Download binary dari [GitHub Releases](https://github.com/broman0x/sundalang/releases) sesuai platform:
-
-**Windows:** `sundalang.exe`  
-**Linux:** `sundalang`  
-**macOS Intel:** `sundalang-macos`  
-**macOS ARM:** `sundalang-macos-arm64`
-
-Jalankan installer built-in:
-
-```bash
-./sundalang install
-```
-
-Binary akan otomatis:
-- Copy dirinya ke `~/.sundalang/bin/`
-- Update PATH (Windows otomatis, Linux/macOS perlu manual)
-
-**Linux/macOS - Tambahkan ke PATH:**
-```bash
-echo 'export PATH="$HOME/.sundalang/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-**Uninstall:**
-```bash
-sundalang uninstall
-```
-
----
-
-### 🔧 Interactive Launcher
-
-Jalankan binary tanpa argument untuk membuka **interactive menu**:
-
-```bash
-sundalang
-```
-
-Menu menyediakan:
-- Install SundaLang ke sistem
-- Uninstall SundaLang
-- Jalankan file .sl
-- Buka REPL mode
-- Keluar
-
----
+1. Download binary `sundalang.exe` (Windows) ataw `sundalang` (Linux/macOS) dari [GitHub Releases](https://github.com/broman0x/sundalang/releases).
+2. Jalankan installer built-in:
+   ```bash
+   ./sundalang install
+   ```
 
 ## 🚀 Cara Pakai
 
 **Jalankan file .sl:**
 ```bash
-sundalang hello.sl
+sundalang 01_dasar.sl
 ```
 
-**REPL Mode (Interactive):**
-```bash
-sundalang
-# Pilih [4] Buka REPL mode
-```
+**Interactive Launcher:**
+Cukup ketik `sundalang` di terminal untuk membuka menu interaktif (Install, Uninstall, REPL, Run).
 
-**Lihat versi:**
+**Cek Versi:**
 ```bash
 sundalang --version
 ```
 
-**Help:**
-```bash
-sundalang --help
+## 💻 Contoh Kode
+
+```javascript
+// Halo Dunya di SundaLang
+cetakkeun("Sampurasun Dunya!")
+
+// Variabel
+tanda ngaran = "Kabayan"
+tanda umur = 25
+
+// Percabangan
+lamun (umur >= 17) {
+    cetakkeun(ngaran + " geus dewasa")
+} lamunteu {
+    cetakkeun(ngaran + " budak keneh")
+}
+
+// Perulangan
+pikeun tanda i = 0; i < 5; i = i + 1 {
+    cetakkeun("Looping ka-" + i)
+}
 ```
-
----
-
-## � Development
-
-Untuk development atau build dari source:
-
-**Prasyarat:** Go 1.22+
-
-```bash
-git clone https://github.com/broman0x/sundalang.git
-cd sundalang
-go build -o sundalang ./cmd/...
-```
-
-**Jalankan:**
-```bash
-./sundalang examples/hello.sl
-```
-
----
 
 ## 🤝 Kontribusi
 
@@ -223,12 +162,7 @@ Kami sangat senang kalau baraya rek nyumbangkeun!
 3. Commit (`git commit -m 'Nambihan fitur mantap'`)
 4. Push & buat Pull Request
 
-Ayo bareng-bareng ngajadikeun SundaLang leuwih gagah!
-
----
-
 ## 📄 Lisensi
 
-Dirilis di bawah MIT License. Lihat file [LICENSE](LICENSE) untuk detail.
-
----
+Dirilis di bawah **MIT License**. Mangga dianggo, dimodifikasi, disebarluaskan saginana.
+WARNING: Gunakan dengan bijak, jangan dipakai nyieun malware (kualat).

@@ -31,8 +31,10 @@ func runFile(filename string) {
 
 	env := sundalang.NewEnvironment()
 	evalResult := sundalang.Eval(program, env)
-	if evalResult != nil && evalResult.Type() == sundalang.ERROR_OBJ {
-		fmt.Println(evalResult.Inspect())
+	if evalResult != nil {
+		if evalResult.Type() == sundalang.ERROR_OBJ {
+			fmt.Println(evalResult.Inspect())
+		}
 	}
 }
 
@@ -49,21 +51,9 @@ func showHelp() {
 	fmt.Println()
 }
 
-func printBox(title string) {
-	width := len(title) + 4
-	if width < 50 {
-		width = 50
-	}
-
-	border := strings.Repeat("=", width)
-	padding := (width - len(title) - 2) / 2
-
-	fmt.Println(border)
-	fmt.Printf("%s %s %s\n", strings.Repeat(" ", padding), title, strings.Repeat(" ", padding))
-	fmt.Println(border)
-}
-
 func install() {
+	setupInstallerWindow()
+	defer cleanupInstallerWindow()
 	printBanner()
 	printHeader("SELF-INSTALLER")
 
@@ -114,9 +104,9 @@ func install() {
 		if err := addToWindowsPath(installDir); err != nil {
 			printWarning(fmt.Sprintf("Gagal otomatis nambahkeun ka PATH: %s", err))
 			fmt.Println()
-			fmt.Println(colorize(ColorRed, "  Tambahkeun sacara manual:"))
-			fmt.Println(colorize(ColorRed, "  Buka System Properties > Environment Variables"))
-			fmt.Println(colorize(ColorRed, fmt.Sprintf("  Tambahkeun '%s' ka User PATH", installDir)))
+			printLine(ColorRed, "  Tambahkeun sacara manual:")
+			printLine(ColorRed, "  Buka System Properties > Environment Variables")
+			printLine(ColorRed, fmt.Sprintf("  Tambahkeun '%s' ka User PATH", installDir))
 		} else {
 			printSuccess("PATH geus diupdate")
 		}
@@ -142,25 +132,26 @@ func install() {
 	}
 
 	fmt.Println()
-	printSeparator()
-	fmt.Println()
-	fmt.Println(colorize(ColorRed+ColorBold, "  ✓ INSTALASI BERHASIL!"))
+	printSuccessBox("INSTALASI BERHASIL!")
 	fmt.Println()
 	printSeparator()
+	fmt.Println()
 
 	if runtime.GOOS == "windows" {
-		printWarning("PENTING: Tutup lur buka deui terminal jeng nerapkeun PATH")
+		printWarning("PENTING: Tutup tur buka deui terminal pikeun nerapkeun PATH")
 		fmt.Println()
 	}
 
 	printInfo("jalankeun jeng cek versi: " + colorize(ColorRed+ColorBold, "sundalang --version"))
 	fmt.Println()
 	printFooter()
-	fmt.Print(colorize(ColorWhite, "Pencet Enter pikeun nutup... "))
+	printPrompt(colorize(ColorWhite, "Pencet Enter pikeun nutup... "))
 	fmt.Scanln()
 }
 
 func uninstall() {
+	setupInstallerWindow()
+	defer cleanupInstallerWindow()
 	printBanner()
 	printHeader("SELF-UNINSTALLER")
 
@@ -175,7 +166,7 @@ func uninstall() {
 	if _, err := os.Stat(installDir); os.IsNotExist(err) {
 		printInfo("SundaLang teu kapanggih. Meureun geus diuninstall.")
 		fmt.Println()
-		fmt.Print(colorize(ColorGray, "Pencet Enter pikeun nutup..."))
+		printPrompt(colorize(ColorGray, "Pencet Enter pikeun nutup..."))
 		fmt.Scanln()
 		return
 	}
@@ -183,7 +174,7 @@ func uninstall() {
 	printInfo(fmt.Sprintf("Kapanggih instalasi di: %s", installDir))
 	fmt.Println()
 	printFooter()
-	fmt.Print(colorize(ColorWhite, "Rek diuninstall SundaLang? (y/n): "))
+	printPrompt(colorize(ColorWhite, "Rek diuninstall SundaLang? (y/n): "))
 
 	var response string
 	fmt.Scanln(&response)
@@ -191,7 +182,7 @@ func uninstall() {
 	if response != "y" && response != "Y" {
 		printInfo("Uninstall dibatalkeun.")
 		fmt.Println()
-		fmt.Print(colorize(ColorGray, "Pencet Enter pikeun nutup..."))
+		printPrompt(colorize(ColorGray, "Pencet Enter pikeun nutup..."))
 		fmt.Scanln()
 		return
 	}
@@ -214,7 +205,7 @@ func uninstall() {
 			printError(fmt.Sprintf("Gagal ngahapus folder: %s", err))
 			fmt.Println()
 			printFooter()
-			fmt.Print(colorize(ColorWhite, "Pencet Enter pikeun nutup... "))
+			printPrompt(colorize(ColorWhite, "Pencet Enter pikeun nutup... "))
 			fmt.Scanln()
 			return
 		}
@@ -224,17 +215,17 @@ func uninstall() {
 
 	fmt.Println()
 	printSeparator()
-	fmt.Println()
-	fmt.Println(colorize(ColorRed+ColorBold, "  ✓ UNINSTALL BERHASIL!"))
+	printSuccessBox("UNINSTALL BERHASIL!")
 	fmt.Println()
 	printSeparator()
-
-	fmt.Println(colorize(ColorWhite, "  Hatur nuhun geus make SundaLang! 👋"))
 	fmt.Println()
-	printInfo("Tutup terminal lur buka deui pikeun nerapkeun parobahan PATH")
+
+	printLine(ColorWhite, "Hatur nuhun geus make SundaLang!")
+	fmt.Println()
+	printInfo("Tutup terminal tur buka deui pikeun nerapkeun parobahan PATH")
 	fmt.Println()
 	printFooter()
-	fmt.Print(colorize(ColorWhite, "Pencet Enter pikeun nutup... "))
+	printPrompt(colorize(ColorWhite, "Pencet Enter pikeun nutup... "))
 	fmt.Scanln()
 }
 
@@ -247,6 +238,8 @@ func copyFile(src, dst string) error {
 }
 
 func showMainMenu() {
+	setupInstallerWindow()
+	defer cleanupInstallerWindow()
 	printBanner()
 	printHeader("INSTALLER & LAUNCHER")
 	fmt.Println()
@@ -260,8 +253,9 @@ func showMainMenu() {
 	fmt.Println()
 	printSeparator()
 	fmt.Println()
+	fmt.Println()
 	printFooter()
-	fmt.Print(colorize(ColorWhite, "Pilihan (1-5): "))
+	printPrompt(colorize(ColorWhite, "Pilihan (1-5): "))
 
 	var choice string
 	fmt.Scanln(&choice)
@@ -274,7 +268,7 @@ func showMainMenu() {
 		uninstall()
 	case "3":
 		printFooter()
-		fmt.Print(colorize(ColorWhite, "Asupkeun path file .sl: "))
+		printPrompt(colorize(ColorWhite, "Asupkeun path file .sl: "))
 		var filePath string
 		fmt.Scanln(&filePath)
 		if filePath != "" {
@@ -282,19 +276,21 @@ func showMainMenu() {
 			runFile(filePath)
 		}
 		fmt.Println()
-		fmt.Print(colorize(ColorGray, "Pencet Enter pikeun nutup..."))
+		fmt.Println()
+		printPrompt(colorize(ColorGray, "Pencet Enter pikeun nutup..."))
 		fmt.Scanln()
 	case "4":
 		fmt.Println()
 		sundalang.StartREPL(os.Stdin, os.Stdout)
 	case "5":
 		fmt.Println()
-		fmt.Println(colorize(ColorRed+ColorBold, "  ✓ ") + colorize(ColorWhite, "Hatur nuhun! 👋"))
+		printLine(ColorWhite, "Hatur nuhun!")
 		return
 	default:
 		printError("Pilihan teu valid")
 		fmt.Println()
-		fmt.Print(colorize(ColorGray, "Pencet Enter pikeun nutup..."))
+		fmt.Println()
+		printPrompt(colorize(ColorGray, "Pencet Enter pikeun nutup..."))
 		fmt.Scanln()
 	}
 }
@@ -305,7 +301,7 @@ func main() {
 
 		switch arg {
 		case "-v", "--version":
-			fmt.Println("SundaLang v1.0.3")
+			fmt.Println("SundaLang v1.0.4")
 			fmt.Println("Bahasa Pemrograman Sunda Pandeglang")
 
 			return

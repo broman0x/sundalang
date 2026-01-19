@@ -16,18 +16,17 @@ const (
 	TOKEN_ASTERISK TokenType = "*"
 	TOKEN_SLASH    TokenType = "/"
 	TOKEN_MODULO   TokenType = "%"
-	
-	TOKEN_LT       TokenType = "<"
-	TOKEN_GT       TokenType = ">"
-	TOKEN_LTE      TokenType = "<=" 
-	TOKEN_GTE      TokenType = ">=" 
-	
-	TOKEN_EQ       TokenType = "=="
-	TOKEN_NOT_EQ   TokenType = "!="
-	
 
-	TOKEN_AND      TokenType = "&&" 
-	TOKEN_OR       TokenType = "||" 
+	TOKEN_LT  TokenType = "<"
+	TOKEN_GT  TokenType = ">"
+	TOKEN_LTE TokenType = "<="
+	TOKEN_GTE TokenType = ">="
+
+	TOKEN_EQ     TokenType = "=="
+	TOKEN_NOT_EQ TokenType = "!="
+
+	TOKEN_AND TokenType = "&&"
+	TOKEN_OR  TokenType = "||"
 
 	TOKEN_COMMA     TokenType = ","
 	TOKEN_SEMICOLON TokenType = ";"
@@ -49,6 +48,17 @@ const (
 	TOKEN_SALAH    TokenType = "SALAH"
 	TOKEN_FUNGSI   TokenType = "FUNGSI"
 	TOKEN_BALIK    TokenType = "BALIK"
+	TOKEN_EUREUN   TokenType = "EUREUN"
+	TOKEN_EWEHAN   TokenType = "EWEHAN"
+	TOKEN_TETEP    TokenType = "TETEP"
+	TOKEN_PIKEUN   TokenType = "PIKEUN"
+	TOKEN_MILIH    TokenType = "MILIH"
+	TOKEN_KASUS    TokenType = "KASUS"
+	TOKEN_BAKU     TokenType = "BAKU"
+	TOKEN_BUKA               = "BUKA"
+	TOKEN_WADAH              = "WADAH"
+	TOKEN_COBAAN             = "COBAAN"
+	TOKEN_SANYA              = "SANYA"
 )
 
 var keywords = map[string]TokenType{
@@ -61,7 +71,20 @@ var keywords = map[string]TokenType{
 	"bener":     TOKEN_BENER,
 	"salah":     TOKEN_SALAH,
 	"fungsi":    TOKEN_FUNGSI,
+	"pungsi":    TOKEN_FUNGSI,
 	"balik":     TOKEN_BALIK,
+	"balikkeun": TOKEN_BALIK,
+	"eureun":    TOKEN_EUREUN,
+	"ewehan":    TOKEN_EWEHAN,
+	"tetep":     TOKEN_TETEP,
+	"pikeun":    TOKEN_PIKEUN,
+	"milih":     TOKEN_MILIH,
+	"kasus":     TOKEN_KASUS,
+	"baku":      TOKEN_BAKU,
+	"buka":      TOKEN_BUKA,
+	"wadah":     TOKEN_WADAH,
+	"cobaan":    TOKEN_COBAAN,
+	"sanya":     TOKEN_SANYA,
 }
 
 type Token struct {

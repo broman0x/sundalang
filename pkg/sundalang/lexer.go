@@ -64,7 +64,7 @@ func (l *Lexer) NextToken() Token {
 		} else {
 			tok = newToken(TOKEN_BANG, l.ch)
 		}
-	case '&': 
+	case '&':
 		if l.peekChar() == '&' {
 			ch := l.ch
 			l.readChar()
@@ -72,7 +72,7 @@ func (l *Lexer) NextToken() Token {
 		} else {
 			tok = newToken(TOKEN_ILLEGAL, l.ch)
 		}
-	case '|': 
+	case '|':
 		if l.peekChar() == '|' {
 			ch := l.ch
 			l.readChar()
@@ -87,7 +87,7 @@ func (l *Lexer) NextToken() Token {
 	case '%':
 		tok = newToken(TOKEN_MODULO, l.ch)
 	case '<':
-		if l.peekChar() == '=' { 
+		if l.peekChar() == '=' {
 			ch := l.ch
 			l.readChar()
 			tok = Token{Type: TOKEN_LTE, Literal: string(ch) + string(l.ch)}
@@ -95,7 +95,7 @@ func (l *Lexer) NextToken() Token {
 			tok = newToken(TOKEN_LT, l.ch)
 		}
 	case '>':
-		if l.peekChar() == '=' { 
+		if l.peekChar() == '=' {
 			ch := l.ch
 			l.readChar()
 			tok = Token{Type: TOKEN_GTE, Literal: string(ch) + string(l.ch)}

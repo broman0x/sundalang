@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"fmt"
 	"hash/fnv"
+	"io/ioutil"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -24,6 +26,16 @@ const (
 	ARRAY_OBJ        = "ARRAY"
 	HASH_OBJ         = "HASH"
 	BUILTIN_OBJ      = "BUILTIN"
+	BREAK_OBJ        = "BREAK"
+)
+
+type Break struct{}
+
+func (b *Break) Inspect() string  { return "break" }
+func (b *Break) Type() ObjectType { return BREAK_OBJ }
+
+var (
+	BREAK = &Break{}
 )
 
 type Object interface {
@@ -50,7 +62,12 @@ func (i *Integer) HashKey() HashKey {
 
 type BooleanObject struct{ Value bool }
 
-func (b *BooleanObject) Inspect() string  { return fmt.Sprintf("%t", b.Value) }
+func (b *BooleanObject) Inspect() string {
+	if b.Value {
+		return "bener"
+	}
+	return "salah"
+}
 func (b *BooleanObject) Type() ObjectType { return BOOLEAN_OBJ }
 func (b *BooleanObject) HashKey() HashKey {
 	var value uint64
@@ -74,7 +91,7 @@ func (s *String) HashKey() HashKey {
 
 type Null struct{}
 
-func (n *Null) Inspect() string  { return "null" }
+func (n *Null) Inspect() string  { return "ewehan" }
 func (n *Null) Type() ObjectType { return NULL_OBJ }
 
 type ReturnValue struct{ Value Object }
@@ -206,7 +223,7 @@ var builtins = map[string]*Builtin{
 			return &Array{Elements: newElements}
 		},
 	},
-	
+
 	"garede": {
 		Fn: func(args ...Object) Object {
 			if len(args) != 1 {
@@ -267,13 +284,70 @@ var builtins = map[string]*Builtin{
 		},
 	},
 
-	"sare": {Fn: fungsiSare},
-	"reureuh": {Fn: fungsiSare}, // Sarua keneh jeung sare, ngan ganti ngaran hungkul.
+	"sare":    {Fn: fungsiSare},
+	"reureuh": {Fn: fungsiSare},
+	"waktu": {
+		Fn: func(args ...Object) Object {
+			return &String{Value: time.Now().Format("15:04:05")}
+		},
+	},
+	"acak": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 1 {
+				return &Error{Message: "acak() butuh 1 argumen (max)"}
+			}
+			max, ok := args[0].(*Integer)
+			if !ok {
+				return &Error{Message: "argumen acak() kudu INTEGER"}
+			}
+			return &Integer{Value: int64(rand.Intn(int(max.Value)))}
+		},
+	},
+	"maca": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 1 {
+				return &Error{Message: "maca() butuh 1 argumen (nama file)"}
+			}
+			path, ok := args[0].(*String)
+			if !ok {
+				return &Error{Message: "argumen maca() kudu STRING"}
+			}
+			content, err := ioutil.ReadFile(path.Value)
+			if err != nil {
+				return &Error{Message: "gagal maca file: " + err.Error()}
+			}
+			return &String{Value: string(content)}
+		},
+	},
+	"nyerat": {
+		Fn: func(args ...Object) Object {
+			if len(args) != 2 {
+				return &Error{Message: "nyerat() butuh 2 argumen (nama file, konten)"}
+			}
+			path, ok := args[0].(*String)
+			if !ok {
+				return &Error{Message: "argumen kahiji nyerat() kudu STRING (nama file)"}
+			}
+			content, ok := args[1].(*String)
+			if !ok {
+				return &Error{Message: "argumen kadua nyerat() kudu STRING (konten)"}
+			}
+			err := ioutil.WriteFile(path.Value, []byte(content.Value), 0644)
+			if err != nil {
+				return &Error{Message: "gagal nulis file: " + err.Error()}
+			}
+			return TRUE
+		},
+	},
 }
 
 type Environment struct {
 	store map[string]Object
 	outer *Environment
+}
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
 }
 
 func NewEnvironment() *Environment {
@@ -383,9 +457,10 @@ func Eval(node Node, env *Environment) Object {
 		return evalWhileStatement(node, env)
 	case *PrintStatement:
 		val := Eval(node.Expression, env)
-		if !isError(val) {
-			fmt.Println(val.Inspect())
+		if isError(val) {
+			return val
 		}
+		fmt.Println(val.Inspect())
 		return NULL
 	case *InputExpression:
 		if node.Prompt != "" {
@@ -398,6 +473,20 @@ func Eval(node Node, env *Environment) Object {
 			return &Integer{Value: i}
 		}
 		return &String{Value: text}
+	case *NullLiteral:
+		return NULL
+	case *BreakStatement:
+		return BREAK
+	case *ForStatement:
+		return evalForStatement(node, env)
+	case *AssignmentExpression:
+		return evalAssignmentExpression(node, env)
+	case *SwitchStatement:
+		return evalSwitchStatement(node, env)
+	case *ImportStatement:
+		return evalImportStatement(node, env)
+	case *TryStatement:
+		return evalTryStatement(node, env)
 	}
 	return nil
 }
@@ -423,7 +512,7 @@ func evalBlockStatement(block *BlockStatement, env *Environment) Object {
 	for _, statement := range block.Statements {
 		result = Eval(statement, env)
 		if result != nil {
-			if result.Type() == RETURN_VALUE_OBJ || result.Type() == ERROR_OBJ {
+			if result.Type() == RETURN_VALUE_OBJ || result.Type() == ERROR_OBJ || result.Type() == BREAK_OBJ {
 				return result
 			}
 		}
@@ -590,17 +679,13 @@ func evalInfixExpression(operator string, left, right Object) Object {
 	}
 
 	if operator == "+" {
-		if left.Type() == STRING_OBJ && right.Type() == STRING_OBJ {
-			return &String{Value: left.(*String).Value + right.(*String).Value}
+		if left.Type() == STRING_OBJ {
+			return &String{Value: left.(*String).Value + right.Inspect()}
 		}
-		if left.Type() == STRING_OBJ && right.Type() == INTEGER_OBJ {
-			return &String{Value: left.(*String).Value + fmt.Sprintf("%d", right.(*Integer).Value)}
-		}
-		if left.Type() == INTEGER_OBJ && right.Type() == STRING_OBJ {
-			return &String{Value: fmt.Sprintf("%d", left.(*Integer).Value) + right.(*String).Value}
+		if right.Type() == STRING_OBJ {
+			return &String{Value: left.Inspect() + right.(*String).Value}
 		}
 	}
-
 
 	if operator == "==" {
 		return nativeBoolToBooleanObject(left == right)
@@ -669,9 +754,147 @@ func evalWhileStatement(ws *WhileStatement, env *Environment) Object {
 		if !isTruthy(condition) {
 			break
 		}
-		Eval(ws.Body, env)
+		result := Eval(ws.Body, env)
+		if result != nil {
+			if result.Type() == BREAK_OBJ {
+				return NULL
+			}
+			if result.Type() == RETURN_VALUE_OBJ || result.Type() == ERROR_OBJ {
+				return result
+			}
+		}
 	}
 	return NULL
+}
+
+func evalForStatement(fs *ForStatement, env *Environment) Object {
+	loopEnv := NewEnclosedEnvironment(env)
+
+	if fs.Init != nil {
+		initResult := Eval(fs.Init, loopEnv)
+		if isError(initResult) {
+			return initResult
+		}
+	}
+
+	for {
+		if fs.Condition != nil {
+			condition := Eval(fs.Condition, loopEnv)
+			if isError(condition) {
+				return condition
+			}
+			if !isTruthy(condition) {
+				break
+			}
+		}
+
+		result := Eval(fs.Body, loopEnv)
+		if result != nil {
+			if result.Type() == BREAK_OBJ {
+				break
+			}
+			if result.Type() == RETURN_VALUE_OBJ || result.Type() == ERROR_OBJ {
+				return result
+			}
+		}
+
+		if fs.Post != nil {
+			postResult := Eval(fs.Post, loopEnv)
+			if isError(postResult) {
+				return postResult
+			}
+		}
+	}
+	return NULL
+}
+
+func evalAssignmentExpression(ae *AssignmentExpression, env *Environment) Object {
+	val := Eval(ae.Value, env)
+	if isError(val) {
+		return val
+	}
+
+	if _, ok := env.store[ae.Name.Value]; ok {
+		env.store[ae.Name.Value] = val
+		return val
+	}
+
+	outer := env.outer
+	for outer != nil {
+		if _, ok := outer.store[ae.Name.Value]; ok {
+			outer.store[ae.Name.Value] = val
+			return val
+		}
+		outer = outer.outer
+	}
+
+	return &Error{Message: "variabel teu dikenal (not defined): " + ae.Name.Value}
+}
+
+func evalSwitchStatement(ss *SwitchStatement, env *Environment) Object {
+	val := Eval(ss.Value, env)
+	if isError(val) {
+		return val
+	}
+
+	for _, choice := range ss.Cases {
+		caseVal := Eval(choice.Value, env)
+		if isError(caseVal) {
+			return caseVal
+		}
+
+		match := false
+
+		if val.Type() == INTEGER_OBJ && caseVal.Type() == INTEGER_OBJ {
+			match = val.(*Integer).Value == caseVal.(*Integer).Value
+		} else if val.Type() == BOOLEAN_OBJ && caseVal.Type() == BOOLEAN_OBJ {
+			match = val.(*BooleanObject).Value == caseVal.(*BooleanObject).Value
+		} else if val.Type() == STRING_OBJ && caseVal.Type() == STRING_OBJ {
+			match = val.(*String).Value == caseVal.(*String).Value
+		}
+
+		if match {
+			return Eval(choice.Body, env)
+		}
+	}
+
+	if ss.Default != nil {
+		return Eval(ss.Default, env)
+	}
+
+	return NULL
+}
+
+func evalImportStatement(is *ImportStatement, env *Environment) Object {
+	filename := is.Path.Value
+
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return &Error{Message: "gagal maca file " + filename + ": " + err.Error()}
+	}
+
+	l := NewLexer(string(data))
+	p := NewParser(l)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		return &Error{Message: "error parsing import " + filename + ": " + strings.Join(p.Errors(), ", ")}
+	}
+
+	return Eval(program, env)
+}
+
+func evalTryStatement(ts *TryStatement, env *Environment) Object {
+	result := Eval(ts.Block, env)
+
+	if result.Type() == ERROR_OBJ {
+		if ts.Catch != nil {
+			return Eval(ts.Catch, env)
+		}
+		return NULL
+	}
+
+	return result
 }
 
 func isTruthy(obj Object) bool {

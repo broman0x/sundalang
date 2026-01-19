@@ -6,25 +6,34 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"syscall"
 
 	"golang.org/x/sys/windows/registry"
 )
 
 func createWindowsDelayedDelete(installDir string) {
+	// Robust batch script: loop until file is unlocked (exe exits), then delete.
+	// We specifically try to delete the known exe location first to ensure lock is gone,
+	// then remove the whole directory.
+	exePath := filepath.Join(installDir, "bin", "sundalang.exe")
 	batchScript := fmt.Sprintf(`@echo off
-timeout /t 2 /nobreak > nul
+:loop
+timeout /t 1 /nobreak > nul
+del /f /q "%s"
+if exist "%s" goto loop
 rd /s /q "%s"
 del "%%~f0"
-`, installDir)
+`, exePath, exePath, installDir)
 
 	tempBat := filepath.Join(os.TempDir(), "sundalang_uninstall.bat")
 	os.WriteFile(tempBat, []byte(batchScript), 0644)
 
-	cmd := fmt.Sprintf(`start /min cmd /c "%s"`, tempBat)
-	os.WriteFile(filepath.Join(os.TempDir(), "sundalang_run.bat"), []byte(cmd), 0644)
-
-	os.StartProcess("cmd", []string{"/c", cmd}, &os.ProcAttr{})
+	// Use exec.Command with SysProcAttr to hide the window completely
+	c := exec.Command("cmd", "/C", tempBat)
+	c.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	c.Start()
 }
 
 func removeFromWindowsPath(pathToRemove string) {
